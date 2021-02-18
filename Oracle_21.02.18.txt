@@ -1,0 +1,142 @@
+﻿-- Trigger
+--
+1. Trigger
+
+CREATE OR REPLACE TRIGGER tri
+        AFTER UPDATE
+        ON student
+        BEGIN
+                INSERT INTO tmp VALUES('aa',SYSDATE,'S');
+end tri;
+/
+
+UPDATE student
+SET stu_weight = stu_weight *0.5;
+
+SELECT
+	*
+FROM tmp;
+
+--
+UPDATE를 안하면 테이블 조회가 불가능함.
+
+--
+2.
+
+create or replace TRIGGER tri2
+        AFTER UPDATE
+        ON student
+        FOR EACH ROW
+                begin
+                INSERT INTO tmp VALUES('aa',SYSDATE,'S');
+end tri2;
+/
+drop TRIGGER tri2;
+
+select * from student;
+
+--
+3.
+
+create or replace TRIGGER tri3
+        AFTER UPDATE 
+        ON student
+          FOR EACH ROW
+          when(old.stu_weight>20)
+        BEGIN
+        insert into tmp values('b',sysdate,'s');
+        END tri3;
+/
+UPDATE student
+SET stu_weight = stu_weight /2;
+
+select  * from tmp;
+
+--
+4. 휴지통
+
+CREATE OR REPLACE TRIGGER del_tri
+        AFTER DELETE 
+        ON dept
+          FOR EACH ROW 
+        BEGIN
+          INSERT INTO dept_delete(userid,workdate,deptno,dname,loc)
+          VALUES ('cc',sysdate, :OLD.Deptno,:OLD.dname,:OLD.loc);
+        END del_tri;
+/
+delete from dept
+where deptno = 10;
+
+SELECT
+	*
+FROM dept_delete;
+
+--
+5. 사원등록
+
+CREATE OR REPLACE TRIGGER emp_tri
+        after insert
+        on emp
+        for each row
+        begin
+                if :new.sal > 5000 then
+                        insert into emp_5000 values(:new.empno, :new.ename, sysdate);
+                end if;
+end emp_tri;
+/
+
+--
+6. 고객번호 프로시저
+
+set SERVEROUTPUT on;
+CREATE OR REPLACE PROCEDURE addr
+        is
+        v_name 고객.고객이름%type;
+        v_adr 고객.주소%type;
+        cursor t_cursor is
+        SELECT 고객이름,주소
+        from 고객
+        where 고객번호 = 4;
+        BEGIN
+                open t_cursor;
+                loop 
+                        fetch t_cursor into v_name, v_adr;
+                        exit when t_cursor%notfound;
+                        DBMS_OUTPUT.PUT_line(v_name || ' ' || v_adr);
+                end loop;
+        end addr;
+/
+EXECUTE addr;
+
+--
+7. 
+
+CREATE OR REPLACE PROCEDURE discount (
+        v_no1 in 상영관.극장번호%TYPE,
+        v_no2 in 상영관.상영관번호%TYPE)
+        is
+        begin
+                update 상영관
+                SET 가격 = 가격*0.8
+                where 상영관번호 = v_no2
+                and 극장번호 = v_no1;
+        end discount;
+/
+execute discount(1,1);
+select * from 상영관;
+
+--
+8.
+
+CREATE or replace PROCEDURE newci (
+        v_극장번호 in 극장.극장번호%TYPE,
+        v_극장이름 in 극장.극장이름%TYPE
+        )
+        is BEGIN
+                UPDATE 극장
+                SET 극장이름 = v_극장이름
+                where 극장번호 = v_극장번호;
+        end newci;
+/
+execute newci(1,'CGV');
+select * from 극장;

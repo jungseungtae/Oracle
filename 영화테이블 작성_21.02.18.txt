@@ -1,0 +1,105 @@
+﻿create table 극장 (
+        극장번호 number(4) PRIMARY KEY,
+        극장이름 VARCHAR(40),
+        위치 VARCHAR(40)
+        );
+
+select * from 극장;
+
+create table 상영관 (
+        극장번호 number(4) REFERENCES 극장(극장번호),
+        상영관번호 number(4) PRIMARY KEY,
+        영화제목 varchar2(40),
+        가격 number(4),
+        좌석 number(4)
+        );
+
+create table 고객 (
+        고객번호 number(4) PRIMARY KEY,
+        고객이름 VARCHAR(40),
+        주소 VARCHAR(40)
+        );
+
+create table 예약 (
+극장번호 number(4), foreign key(극장번호) references 극장(극장번호),
+상영관번호 number(4), foreign key(상영관번호) references 상영관(상영관번호),
+고객번호 number(4), foreign key(고객번호) references 고객(고객번호),
+좌석번호 number(4) primary key,
+날짜 date
+	);
+
+insert into 극장 values(1,'대한','강남');
+insert into 극장 values(2,'씨티','강남');
+insert into 극장 values(3,'씨티','잠실');
+insert into 극장 values(4,'CGV','서울시 강남구');
+insert into 극장 values(5,'메가박스','서울시 도봉구');
+
+insert into 상영관 values(1,1,'신세계',9000,35);
+insert into 상영관 values(1,2,'영웅호걸',9000,40);
+insert into 상영관 values(3,3,'러브레터',9000,10);
+insert into 상영관 values(3,4,'범죄의 도시',7000,50);
+insert into 상영관 values(3,5,'신과 함께',7500,20);
+
+insert into 고객 values(1,'양종현','서울시 강동구');
+insert into 고객 values(2,'김유진','서울시 도봉구');
+insert into 고객 values(3,'김민혁','서울시 강남구');
+insert into 고객 values(4,'오지연','서울시 강남구');
+insert into 고객 values(5,'정현석','서울시 도봉구');
+
+insert into 예약 values(1,1,1,30,to_date('2019-10-15','yyyy-mm-dd'));
+insert into 예약 values(2,1,2,25,to_date('2019-10-15','yyyy-mm-dd'));
+insert into 예약 values(3,1,3,35,to_date('2019-10-17','yyyy-mm-dd'));
+insert into 예약 values(4,2,4,20,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(4,3,3,10,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(1,3,2,40,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(3,1,2,45,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(2,2,1,50,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(2,3,1,55,to_date('2020-08-01','yyyy-mm-dd'));
+insert into 예약 values(1,2,4,15,to_date('2020-08-01','yyyy-mm-dd'));
+
+SELECT
+FROM
+WHERE
+
+select *
+from 극장 NATURAL JOIN 상영관;
+
+select *
+from 고객 NATURAL JOIN 예약;
+
+select *
+from 고객
+where 주소 like '서울시 강남구'
+ORDER BY 고객이름;
+
+select 극장번호, 상영관번호, 영화제목
+from 상영관
+where 가격 < 8000;
+
+SELECT COUNT(*)
+FROM 고객 NATURAL JOIN 예약
+WHERE 날짜 = '2020-08-01';
+
+desc 예약;
+desc 고객;
+
+SELECT 고객이름
+FROM 고객, 예약
+WHERE 고객.고객번호 = 예약.고객번호
+and 극장번호 in 
+(SELECT 극장번호
+FROM 극장
+WHERE 극장이름 = '대한');
+
+SELECT COUNT(상영관번호), 극장이름
+FROM 상영관 NATURAL JOIN 극장
+GROUP BY 극장이름;
+
+SELECT avg(고객번호), 극장번호
+FROM 고객 NATURAL JOIN 예약
+WHERE 날짜 = '2020-08-01'
+GROUP BY 극장번호;
+
+select * from 예약
+where 날짜 = '2020-08-01';
+
